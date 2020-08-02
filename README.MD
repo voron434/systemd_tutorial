@@ -208,6 +208,8 @@ WantedBy=multi-user.target
 Давайте сделаем это, и получаем следующий ответ:
 
 ![image](git_assets/enabled_symlink_created.png)
+>Строка `Created symlink /etc/systemd/system/multi-user.target.wants/http_sever_test.service → /etc/systemd/system/http_sever_test.service.`
+означает, что строка `http_sever_test.service` в target'e `multi-user.target` ссылается на наш файл-инструкцию `http_sever_test.service`, который находится в `/etc/systemd/system/`.
 
 Ну теперь-то наверное получилось? Перезагрузим сервер и проверим.
 
