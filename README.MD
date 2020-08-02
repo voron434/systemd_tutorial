@@ -164,9 +164,9 @@ After=nginx.service mysql.service hhvm.service backup.timer
 - `Alias=` Эта инструкция описывает какой будет псевдоним для нашего файла.
 
 Для нашей задачи подойдет инструкция `WantedBy=`. Мы должны дать такую инструкцию: `WantedBy=multi-user.target`
-> В переводе на человеческий это значит: *"Запустите наш файл-инструкцию, когда будете запускать другие файл из группы `multi-user.target` "*
+> В переводе на человеческий это значит: *"Запустите наш файл-инструкцию, когда будете запускать другие файлы из группы `multi-user.target` "*
 
-Итак, наш файл `http_sever_test.service` преобретает такой вид:
+Итак, наш файл `http_sever_test.service` приобретает такой вид:
 ```
 [Service]
 ExecStart=/usr/bin/python3 -m http.server 8000
@@ -174,4 +174,43 @@ ExecStart=/usr/bin/python3 -m http.server 8000
 [Install]
 WantedBy=multi-user.target
 ```
+
+Изменяем, запускаем `systemctl start http_sever_test` и смотрим состояние `systemctl status http_sever_test`.
+
+![image](git_assets/added_install_section.png)
+
+Вроде всё отлично, пишет что `active (running)` и сайт работает.
+
+Перезапускаем сервер и видим, что сайт не работает. В чем проблема?
+
+Наберем `systemctl status http_sever_test` и видим следующее:
+
+![image](git_assets/inactive_disabled.png)
+
+Да, действительно, наш файл-инструкция не запущен `inactive (dead)` (неактивен (мертв)).
+
+Почему? Посмотрим на строчку, которую в прошлый раз мы не разобрали - `Loaded`.
+
+`Loaded: loaded (/etc/systemd/system/http_sever_test.service; disabled; vendor preset: enabled)`
+
+Здесь написано, что наш файл загружен (`loaded`) и дальше есть слово `disabled` - в этом слове и кроется ответ.
+
+У нашего файл может быть несколько состояний:
+- `enabled` - файл-инструкция включен в автозагрузку
+- `disabled` - файл-инструкция не включен в автозагрузку
+- `masked` - файл-инструкция скрыт, вы его не можете запустить
+- `static` - файл-инструкция в автозагрузке, и вы не можете его отключить
+
+Логично, что нам нужен первый вариант `enabled`.
+
+Чтобы наш файл сделать `enabled` нам нужно запустить команду `systemctl enable http_sever_test`.
+
+Давайте сделаем это, и получаем следующий ответ:
+
+![image](git_assets/enabled_symlink_created.png)
+
+Ну теперь-то наверное получилось? Перезагрузим сервер и проверим.
+
+Да, действительно всё сработало.
+
 
