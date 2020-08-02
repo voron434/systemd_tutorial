@@ -328,3 +328,11 @@ C помощью команды `systemctl status http_server_test` убедим
 ![image](git_assets/journalctl_u_http_server.png)
 
 Если добавить аргумент `-f` возле `-u`, то можно будет отслеживать историю по файлу в режиме реального времени - полная команда `journalctl -f -u название_файла`.
+
+### Читать дальше
+
+1. https://tproger.ru/translations/how-to-love-systemd/
+2. https://www.digitalocean.com/community/tutorials/understanding-systemd-units-and-unit-files (Аналог на русском https://linux-notes.org/pishem-systemd-unit-fajl/)
+3. https://www.digitalocean.com/community/tutorials/how-to-use-systemctl-to-manage-systemd-services-and-units
+4. https://pikabu.ru/story/systemd_dlya_samyikh_malenkikh_chast_i_znakomstvo_4285483
+5. [Документация SystemD](https://www.freedesktop.org/software/systemd/man/systemd.service.html)
