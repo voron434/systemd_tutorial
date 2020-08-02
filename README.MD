@@ -35,7 +35,7 @@ SystemD нам поможет контролировать этого демон
 
 >Собственно название говорит за себя: Execute (at) Start - Выполнить при старте/в начале
 
-Давайте напишем наш первый файл и назовем его `http_sever_test.sevice`:
+Давайте напишем наш первый файл и назовем его `http_server_test.sevice`:
 ```
 [Service]
 ExecStart=python -m http.server 8000
@@ -46,27 +46,27 @@ ExecStart=python -m http.server 8000
 
 Итак, запустить наш файл мы можем с помощью команды `systemctl start название_файла`.
 
-В нашем случае мы набираем `systemctl start http_sever_test.sevice`, нажимаем Enter и консоль нам отвечает:
+В нашем случае мы набираем `systemctl start http_server_test.sevice`, нажимаем Enter и консоль нам отвечает:
 
 ```bash
-# systemctl start http_sever_test
-Failed to start http_sever_test.service: Unit http_sever_test.service has a bad unit file setting.
-See system logs and 'systemctl status http_sever_test.service' for details.
+# systemctl start http_server_test
+Failed to start http_server_test.service: Unit http_server_test.service has a bad unit file setting.
+See system logs and 'systemctl status http_server_test.service' for details.
 ```
 
->Вольный перевод: Неудалось запустить ваш файл http_sever_test.service: в нём плохие инструкции.
->Наберите `systemctl status http_sever_test.service` , чтобы узнать что случилось.
+>Вольный перевод: Неудалось запустить ваш файл http_server_test.service: в нём плохие инструкции.
+>Наберите `systemctl status http_server_test.service` , чтобы узнать что случилось.
 
 Отлично! Тут мы узнаём, что у `systemctl` есть еще одна команда `systemctl status название_файла.service`.
 Это команда позволяет узнать о состоянии нашего файла, запущен ли он, остановлен или может что-то с ним случилось.
 
-Давайте наберём `systemctl status http_sever_test.service`. Получаем такой ответ:
+Давайте наберём `systemctl status http_server_test.service`. Получаем такой ответ:
 
 ![image](git_assets/status_bad_setting.png)
 
 Давайте разберем, что в нём написано:
 - 3-я строка сверху: `Active: inactive (dead)` - говорит нам о том, что наш файл-инструкция неактивен (мёртв)
-- 3-я строка снизу (выделено красным): `/etc/systemd/system/http_sever_test.service:2: Executable "python" not found in path "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"` - говорит о том, что конкретно случилось? какая ошибка произошла?
+- 3-я строка снизу (выделено красным): `/etc/systemd/system/http_server_test.service:2: Executable "python" not found in path "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"` - говорит о том, что конкретно случилось? какая ошибка произошла?
 В данном случае она говорит, что SystemD в соответсвии нашей инструкции (`ExecStart=python -m http.server 8000`) искал `python` и не смог его найти.
 Действительно, если посмотреть, то конкретно на нашем сервере нет такой директории по такому адресу, но есть `python3` и `python3.8`.
 
@@ -76,13 +76,13 @@ See system logs and 'systemctl status http_sever_test.service' for details.
 ExecStart=python3 -m http.server 8000
 ```
 
-Запустим её с помощью уже знакомой нам команды `systemctl start http_sever_test.sevice`.
-Проверим её состояние с помощью команды, с которой мы только что познакомились `systemctl status http_sever_test.service` и получаем такой ответ:
+Запустим её с помощью уже знакомой нам команды `systemctl start http_server_test.sevice`.
+Проверим её состояние с помощью команды, с которой мы только что познакомились `systemctl status http_server_test.service` и получаем такой ответ:
 
 ![image](git_assets/status_active_running.png)
 
 Разберем, что написано в этот раз:
-- 2-я строка сверху `●http_sever_test.service`. Мы видим, что кружок возле названия нашего файла стал зелёным, а в прошлый раз был черный.
+- 2-я строка сверху `●http_server_test.service`. Мы видим, что кружок возле названия нашего файла стал зелёным, а в прошлый раз был черный.
 - 4-я строка сверху `Active: active (running)`. Слова `active (running)` означают "активный (запущен)". Кстати, как и кружок они стали зелеными, а в прошлый раз они были красными.
 
 Мы поняли, что зелёный цвет - это хороший знак.
@@ -101,7 +101,7 @@ Connection to 84.38.180.108 closed.
 
 
 Подсказки: 
-как создать файл? ( `vim /etc/systemd/system/http_sever_test.service` )
+как создать файл? ( `vim /etc/systemd/system/http_server_test.service` )
 
 ### 3. Добавьте в автозапуск
 Зачем: Сервер иногда приходится перезапускать из-за обновления ПО и изменения настроек. Ещё хостинг провайдер периодически обновляет софт, чтобы закрыть свежие уязвимости, и самостоятельно перезапускает сервер.
@@ -149,8 +149,8 @@ After=nginx.service mysql.service hhvm.service backup.timer
 Нас интересует `multi-user.target`, по-русски он называется "многопользовательский режим", это когда запущены все программы запущены, но без графического интерфейса, то есть можно контролировать их работу только через терминал.
 > Логично можно догадаться, что когда есть графический интерфейс - это когда запущен target `graphical.target`.
 
-В общем, нам нужно сделать так, чтобы наш файл-инструкцию `http_sever_test.service` включили в группу `multi-user.target`.
-То есть, чтобы в файле target'a `multi-user.target` появилась ссылка на наш `http_sever_test.service`, и тогда когда будут запускаться файлы-инструкции из `multi-user.target` запустится и наш.
+В общем, нам нужно сделать так, чтобы наш файл-инструкцию `http_server_test.service` включили в группу `multi-user.target`.
+То есть, чтобы в файле target'a `multi-user.target` появилась ссылка на наш `http_server_test.service`, и тогда когда будут запускаться файлы-инструкции из `multi-user.target` запустится и наш.
 
 #### Кто такой раздел `[INSTALL]` ?
 
@@ -166,7 +166,7 @@ After=nginx.service mysql.service hhvm.service backup.timer
 Для нашей задачи подойдет инструкция `WantedBy=`. Мы должны дать такую инструкцию: `WantedBy=multi-user.target`
 > В переводе на человеческий это значит: *"Запустите наш файл-инструкцию, когда будете запускать другие файлы из группы `multi-user.target` "*
 
-Итак, наш файл `http_sever_test.service` приобретает такой вид:
+Итак, наш файл `http_server_test.service` приобретает такой вид:
 ```
 [Service]
 ExecStart=/usr/bin/python3 -m http.server 8000
@@ -175,7 +175,7 @@ ExecStart=/usr/bin/python3 -m http.server 8000
 WantedBy=multi-user.target
 ```
 
-Изменяем, запускаем `systemctl start http_sever_test` и смотрим состояние `systemctl status http_sever_test`.
+Изменяем, запускаем `systemctl start http_server_test` и смотрим состояние `systemctl status http_server_test`.
 
 ![image](git_assets/added_install_section.png)
 
@@ -183,7 +183,7 @@ WantedBy=multi-user.target
 
 Перезапускаем сервер и видим, что сайт не работает. В чем проблема?
 
-Наберем `systemctl status http_sever_test` и видим следующее:
+Наберем `systemctl status http_server_test` и видим следующее:
 
 ![image](git_assets/inactive_disabled.png)
 
@@ -191,7 +191,7 @@ WantedBy=multi-user.target
 
 Почему? Посмотрим на строчку, которую в прошлый раз мы не разобрали - `Loaded`.
 
-`Loaded: loaded (/etc/systemd/system/http_sever_test.service; disabled; vendor preset: enabled)`
+`Loaded: loaded (/etc/systemd/system/http_server_test.service; disabled; vendor preset: enabled)`
 
 Здесь написано, что наш файл загружен (`loaded`) и дальше есть слово `disabled` - в этом слове и кроется ответ.
 
@@ -203,13 +203,13 @@ WantedBy=multi-user.target
 
 Логично, что нам нужен первый вариант `enabled`.
 
-Чтобы наш файл сделать `enabled` нам нужно запустить команду `systemctl enable http_sever_test`.
+Чтобы наш файл сделать `enabled` нам нужно запустить команду `systemctl enable http_server_test`.
 
 Давайте сделаем это, и получаем следующий ответ:
 
 ![image](git_assets/enabled_symlink_created.png)
-`Created symlink /etc/systemd/system/multi-user.target.wants/http_sever_test.service → /etc/systemd/system/http_sever_test.service.`
-это значит, что строка `http_sever_test.service` в target'e `multi-user.target` ссылается на наш файл-инструкцию `http_sever_test.service`, который находится в `/etc/systemd/system/`.
+`Created symlink /etc/systemd/system/multi-user.target.wants/http_server_test.service → /etc/systemd/system/http_server_test.service.`
+это значит, что строка `http_server_test.service` в target'e `multi-user.target` ссылается на наш файл-инструкцию `http_server_test.service`, который находится в `/etc/systemd/system/`.
 
 Ну теперь-то наверное получилось? Перезагрузим сервер и проверим.
 
@@ -222,9 +222,9 @@ WantedBy=multi-user.target
 
 Казалось бы, работа сделана, можно закочить этот туториал, но на самом деле нет.
 
-Что будет если в процессе работы поломатеся программа `http.server`, `python-интерпретатор` или просто произойдет какая-либо ошибка, которая остановит работу нашего файла-инструкции `http_sever_test`?
+Что будет если в процессе работы поломатеся программа `http.server`, `python-интерпретатор` или просто произойдет какая-либо ошибка, которая остановит работу нашего файла-инструкции `http_server_test`?
 
-Давайте проверим это, резко прервем его работу. Сделать это можно с помощью команды `systemctl kill http_sever_test` - эта команда "убивает" процесс (работу нашего файла).
+Давайте проверим это, резко прервем его работу. Сделать это можно с помощью команды `systemctl kill http_server_test` - эта команда "убивает" процесс (работу нашего файла).
 
 Окей, видим, что сайт перестал работать. Что делать?
 
@@ -258,12 +258,12 @@ WantedBy=multi-user.target
 
 Давайте проверим работает ли наша инструкция `Restart=always`. Для этого сначала запустим нашу программу и потом убьём её.
 
-Запускаем с помощью команды `systemctl start http_sever_test.sevice`
+Запускаем с помощью команды `systemctl start http_server_test`
 
 ...и нам прилетает следующий ответ:
 ```bash
-# systemctl start http_sever_test
-Warning: The unit file, source configuration file or drop-ins of http_sever_test.service changed on disk. Run 'systemctl daemon-reload' to reload units.
+# systemctl start http_server_test
+Warning: The unit file, source configuration file or drop-ins of http_server_test.service changed on disk. Run 'systemctl daemon-reload' to reload units.
 ```
 
 Автоский перевод: *Внимание: ваш файл-инструкция был изменен. Запустите команду `systemctl daemon-reload`, чтобы перезагрузить ваш файл.*
@@ -278,16 +278,16 @@ Warning: The unit file, source configuration file or drop-ins of http_sever_test
 
 Итак, запускаем команду `systemctl daemon-reload`.
 
-Теперь запускаем наш файл-инструкцию с помощью команды `systemctl start http_sever_test.sevice`.
+Теперь запускаем наш файл-инструкцию с помощью команды `systemctl start http_server_test`.
 
-Убедимся, что он запустился с помощью команды `systemctl status http_sever_test.sevice`
+C помощью команды `systemctl status http_server_test` убедимся, что он запустился 
 
 ![image](git_assets/after_daemon_reload.png)
 
 
-Запустился и сайт работает. Теперь убьём его с помощью команды `systemctl kill http_sever_test.sevice`.
+Запустился и сайт работает. Теперь убьём его с помощью команды `systemctl kill http_server_test`.
 
-Проверим его состояние `systemctl status http_sever_test.sevice`
+Проверим его состояние `systemctl status http_server_test`
 
 ![image](git_assets/after_kill2.png)
 
@@ -304,7 +304,7 @@ Warning: The unit file, source configuration file or drop-ins of http_sever_test
 
 Если коротко, то в Linux каждая запущенная программа является единым процессом и она имеет свой номерок.
 
-Так вот, на скриншотах видно, что вроде бы запущен один и тот же наш файл `http_sever_test.sevice`, но почему-то айдишники различаются.
+Так вот, на скриншотах видно, что вроде бы запущен один и тот же наш файл `http_server_test`, но почему-то айдишники различаются.
 
 Различаются они потому что первый процесс под номером `1510` мы убили (помните?), но из-за инструкции `Restart=always` в нашем файле SystemD немедленно перезапустил файл,
  и получился новый процесс с новым номером `1705`.
@@ -313,3 +313,4 @@ Warning: The unit file, source configuration file or drop-ins of http_sever_test
 Зачем: при отладке удобно видеть список запросов, прилетающих на веб-сервер
 
 Цель: видим лог прилетающих запросов в режиме реального времени
+
