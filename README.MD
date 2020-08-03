@@ -41,12 +41,12 @@ SystemD нам поможет контролировать этого демон
 ExecStart=python -m http.server 8000
 ```
 
-Теперь нам нужно его запустить, тут на помощь приходит `systemctl` это инструмент, который помогает работать с нашими файлами-инструкциями.
-Помогает запускать/останавливать/перезапускать , проверять состояние наших файлов и многое другое.
+Теперь нам нужно его запустить. Тут на помощь приходит `systemctl` это инструмент, который помогает работать с нашими файлами-инструкциями.
+Помогает запускать/останавливать/перезапускать и проверять состояние наших файлов и многое другое.
 
-Итак, запустить наш файл мы можем с помощью команды `systemctl start название_файла`.
+Итак, запустить наш файл мы можем с помощью команды `systemctl start название_файла`. Кстати, название файла можно написать без суффикса `.service`.
 
-В нашем случае мы набираем `systemctl start http_server_test.sevice`, нажимаем Enter и консоль нам отвечает:
+В нашем случае мы набираем `systemctl start http_server_test`, нажимаем `Enter` и консоль нам отвечает:
 
 ```bash
 # systemctl start http_server_test
@@ -54,21 +54,21 @@ Failed to start http_server_test.service: Unit http_server_test.service has a ba
 See system logs and 'systemctl status http_server_test.service' for details.
 ```
 
->Вольный перевод: Неудалось запустить ваш файл http_server_test.service: в нём плохие инструкции.
->Наберите `systemctl status http_server_test.service` , чтобы узнать что случилось.
+Вольный перевод: Неудалось запустить ваш файл http_server_test.service: в нём плохие инструкции. Наберите `systemctl status http_server_test.service` , чтобы узнать что случилось.
 
-Отлично! Тут мы узнаём, что у `systemctl` есть еще одна команда `systemctl status название_файла.service`.
+Отлично! Тут мы узнаём, что у `systemctl` есть еще одна команда `systemctl status название_файла.service` (*на самом деле, как и с командой `systemctl start` название файла можно писать без суффикса `.service`*).
 Это команда позволяет узнать о состоянии нашего файла, запущен ли он, остановлен или может что-то с ним случилось.
 
-Давайте наберём `systemctl status http_server_test.service`. Получаем такой ответ:
+Давайте наберём `systemctl status http_server_test`. Получаем такой ответ:
 
 ![image](git_assets/status_bad_setting.png)
 
 Давайте разберем, что в нём написано:
 - 3-я строка сверху: `Active: inactive (dead)` - говорит нам о том, что наш файл-инструкция неактивен (мёртв)
 - 3-я строка снизу (выделено красным): `/etc/systemd/system/http_server_test.service:2: Executable "python" not found in path "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"` - говорит о том, что конкретно случилось? какая ошибка произошла?
-В данном случае она говорит, что SystemD в соответсвии нашей инструкции (`ExecStart=python -m http.server 8000`) искал `python` и не смог его найти.
-Действительно, если посмотреть, то конкретно на нашем сервере нет такой директории по такому адресу, но есть `python3` и `python3.8`.
+
+В данном случае она говорит, что SystemD в соответствии нашей инструкции (`ExecStart=python -m http.server 8000`) искал `python` и не смог его найти.
+Действительно, если посмотреть, то конкретно на нашем сервере нет такой директории по такому адресу, но есть `python3` и `python3.8` (*мы узнали это вручную посмотрев эту директорию*).
 
 Окей, давайте исправим наш файл-инструкцию:
 ```
@@ -76,8 +76,8 @@ See system logs and 'systemctl status http_server_test.service' for details.
 ExecStart=python3 -m http.server 8000
 ```
 
-Запустим её с помощью уже знакомой нам команды `systemctl start http_server_test.sevice`.
-Проверим её состояние с помощью команды, с которой мы только что познакомились `systemctl status http_server_test.service` и получаем такой ответ:
+Запустим её с помощью уже знакомой нам команды `systemctl start http_server_test`.
+Проверим её состояние с помощью команды, с которой мы только что познакомились `systemctl status http_server_test` и получаем такой ответ:
 
 ![image](git_assets/status_active_running.png)
 
