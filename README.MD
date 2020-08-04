@@ -119,6 +119,7 @@
     [Install]
     WantedBy=multi-user.target
     ```
+   > Если коротко, то мы включили наш файл в специальную группу других файлов, которые запускаются при старте ОС
 
 2. Введите команду `systemctl enable my_http_server`
     - получите ответ:
@@ -126,6 +127,7 @@
     # systemctl enable my_http_server
     Created symlink /etc/systemd/system/multi-user.target.wants/my_http_server.service → /etc/systemd/system/my_http_server.service.
    ```
+   > Тут мы как-бы применили предыдущую инструкцию и окончательно включили наш файл-инструкцию в автозагрузку
 
 3. Перезагрузите сервер с помощью команды `reboot now`
 
