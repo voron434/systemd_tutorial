@@ -156,6 +156,7 @@
     [Install]
     WantedBy=multi-user.target
     ```
+   > `Restart=always` значит "перезагружай файл всегда, когда его работа останавливается"
 
 2. Запустите файл с помощью команды `systemctl start my_http_server`
     - прилетел следующий ответ:
