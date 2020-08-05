@@ -3,7 +3,7 @@
 У нас есть исходный код [сайта](https://github.com/su1tanb3k/systemd_tutorial/blob/master/index.html).
 
 1. Загрузите его на сервер в корневую директорию с помощью команды `wget https://github.com/su1tanb3k/systemd_tutorial/blob/master/index.html`
-2. Проверьте открывается ли сайт. В браузере пройдите на порт 8000 на ip-адресе вашего сервера.
+2. Проверьте открывается ли сайт. В браузере пройдите на порт 8000 на ip-адресе вашего сервера (Пример: `84.38.180.108:8000`).
 
 ![image](git_assets/landing_off.png)
 
