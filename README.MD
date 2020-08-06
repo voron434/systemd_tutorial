@@ -1,5 +1,3 @@
-# Как настроить SystemD?
-
 ### 0. Загрузите сайт на сервер
 
 У нас есть исходный код [сайта](https://github.com/su1tanb3k/systemd_tutorial/blob/master/index.html).
