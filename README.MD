@@ -60,17 +60,17 @@ python3 -m http.server --bind 84.38.180.108 --directory public_html 8000
 
 ### 2. Запустите HTTP-сервер на фоне
 
-Нужно запустить HTTP-сервер в фоновом режиме работы. Программы в фоновом режиме называю демонами или программами в режиме демона.
+Нужно запустить HTTP-сервер в фоновом режиме работы. Программы, которые в фоновом режиме называются демонами. Или программами в режиме демона.
 
 Программа **systemd** запустит HTTP-сервер в режиме демона.
 
-Перейдите в папку где лежат файлы-инструкции
+Для systemd нужно написать специальный файл-инструкцию.
+
+Перейдите в папку
 
 `cd /etc/systemd/system`
 
-Создайте новый файл-инструкцию
-
-`vim my_http_server.service`
+Создайте новый файл-инструкцию с названием `my_http_server.service`
  
 Запишите в него этот текст
  
@@ -93,7 +93,7 @@ Failed to start my_http_server.service: Unit my_http_server.service has a bad un
 See system logs and 'systemctl status my_http_server.service' for details.
 ```
 
-Вольный перевод: *Неудалось запустить файл my_http_server.service: в нём плохие инструкции. Запустите команду `systemctl status my_http_server.service` , чтобы узнать что случилось.*
+Авторский перевод: *Неудалось запустить файл my_http_server.service: в нём плохие инструкции. Запустите команду `systemctl status my_http_server.service` , чтобы узнать что случилось.*
 
 Запустите команду `systemctl status my_http_server`
 
@@ -101,10 +101,11 @@ See system logs and 'systemctl status my_http_server.service' for details.
 
 ![image](git_assets/status_bad_setting.png)
 
-- cтрока `Active: inactive (dead)` значит что файл неактивен/"мёртв"
-- красная строка `/etc/systemd/system/my_http_server.service:2: Executable "python" not found in path "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"`
+Строка `Active: inactive (dead)` значит что файл неактивен/"мёртв"
 
-Systemd не смог найти `python` в папке `/usr/bin/`.
+Красная строка `/etc/systemd/system/my_http_server.service:2: Executable "python" not found in path "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"`
+значит, что systemd не смог найти `python` в папке `/usr/bin/`.
+
 В этой папке есть только `python3` и `python3.8`.
 
 Измените содержание файла на такое
@@ -114,13 +115,13 @@ Systemd не смог найти `python` в папке `/usr/bin/`.
 ExecStart=python3 -m http.server --bind 84.38.180.108 --directory public_html 8000
 ```
 
-Повторите запуск с помощью команды из пункта №3:
+Повторите запуск файла
 
 `systemctl start my_http_server`.
 
 >В этот раз терминал ничем не ответил
 
-Проверьте состояние файла-инструкции с помощью команды из пункта №4:
+Проверьте состояние файла
 
 `systemctl status my_http_server`
 
@@ -128,8 +129,9 @@ ExecStart=python3 -m http.server --bind 84.38.180.108 --directory public_html 80
 
 ![image](git_assets/status_active_running.png)
 
-- строка `●my_http_server.service`. Кружок возле названия нашего файла стал зелёным, а в прошлый раз был черный.
-- строка `Active: active (running)`. Слова `active (running)` значит файл запущен. Как и кружок они стали зелеными, а в прошлый раз они были красными.
+Строка `●my_http_server.service`. Кружок возле названия нашего файла стал зелёным, а в прошлый раз был черный.
+
+Строка `Active: active (running)`. Слова `active (running)` значит файл запущен. Как и кружок они стали зелеными, а в прошлый раз они были красными.
 
 >*Зелёный цвет - это хороший знак.*
 
@@ -156,13 +158,17 @@ Connection to 84.38.180.108 closed.
 
 Сервер иногда приходится перезапускать из-за обновления ПО и изменения настроек. Ещё хостинг провайдер периодически обновляет софт, чтобы закрыть свежие уязвимости, и самостоятельно перезапускает сервер.
 
-Перезагрузите сервер набрав в терминале `reboot now`
+Проверьте, что станет с сайтом если сервер перезагрузится.
 
-Проверьте сайт в браузере:
+Перезагрузите сервер с помощью команды
+
+`reboot now`
+
+Проверьте сайт в браузере
 
 ![image](git_assets/landing_off.png)
 
-Сайт перестал работать. 
+Сайт перестал работать :( 
 
 Это потому что мы не сказали systemd запускать HTTP-сервер если сервер включается или перезагружается.
 
@@ -175,7 +181,6 @@ ExecStart=python3 -m http.server --bind 84.38.180.108 --directory public_html 80
 [Install]
 WantedBy=multi-user.target
 ```
-> Файл записали в группу файлов multi-user. Эта группа файлов, которая запускается при старте ОС.
 
 Введите команду `systemctl enable my_http_server`
 
@@ -185,19 +190,18 @@ WantedBy=multi-user.target
 # systemctl enable my_http_server
 Created symlink /etc/systemd/system/multi-user.target.wants/my_http_server.service → /etc/systemd/system/my_http_server.service.
 ```
-> Подтверждение, что файл теперь в автозагрузке
 
 Перезагрузите сервер с помощью команды `reboot now`
 
 Проверьте сайт в браузере.
 
-Сайт работает!
+Поздравляю! Сайт продолжает работать даже если вы закроете терминал или перезагрузите сервер.
 
 ### 4. Автозапуск в случае сбоя
 
-Поздравляю! Сайт продолжает работать даже если вы закроете терминал или перезагрузите сервер.
+Плохая новость: программы иногда ломаются.
 
-Но что если случится сбой в HTTP-сервере или `Python-интерпретаторе`?
+Что если случится сбой в HTTP-сервере и файл из-за этого перестанет работать?
 
 Сымитируйте поломку программы - резко остановите работу файла.
 
